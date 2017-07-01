@@ -33,6 +33,7 @@
     "react-redux": "4.3.0",
     "react-router": "^2.0.1",
     "redux": "^3.0.4",
+    "semantic-ui-css": "^2.2.10",
     "semantic-ui-react": "^0.70.0"
   }
 }
