@@ -18,10 +18,12 @@
     "babel-preset-react": "^6.1.18",
     "chai": "^3.5.0",
     "chai-jquery": "^2.0.0",
+    "css-loader": "^0.28.4",
     "jquery": "^2.2.1",
     "jsdom": "^8.1.0",
     "mocha": "^2.4.5",
     "react-addons-test-utils": "^0.14.7",
+    "style-loader": "^0.18.2",
     "webpack": "^1.12.9",
     "webpack-dev-server": "^1.14.0"
   },
@@ -33,9 +35,11 @@
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "react-html-parser": "^1.0.3",
-    "react-redux": "4.3.0",
+    "react-image-gallery": "^0.8.3",
+    "react-redux": "^4.3.0",
     "react-router": "^2.0.1",
-    "redux": "^3.0.4",
+    "react-slick": "^0.14.11",
+    "redux": "^3.7.2",
     "semantic-ui-css": "^2.2.10",
     "semantic-ui-react": "^0.70.0"
   }

@@ -11,14 +11,21 @@ import {
   Popup,
   Statistic
 } from 'semantic-ui-react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import ReactQuill from 'react-quill';
+import SearchResults from './searchResults';
+import { loginSuccess, signOut } from '../../actions/index';
+import { CONFIG } from '../../config';
+import { UShowInputForm } from './uShowLoginForm';
+
 //import ReactHtmlParser from 'react-html-parser';
 //import theme from 'react-quill/dist/quill.snow.css';
 
 class UShowHeader extends Component{
   componentWillMount(){
     this.state = {
-      activeItem: '指標',
+      activeItem: '好文',
       star: false,
       starClass: "fa fa-star-o",
       starTip: "點星星以篩選好文",
@@ -36,6 +43,7 @@ class UShowHeader extends Component{
     this.handleQuillChange = this.handleQuillChange.bind(this);
     this.addNewNotifArea = this.addNewNotifArea.bind(this);
     this.handleAddNotifClick = this.handleAddNotifClick.bind(this);
+    this.loginHandler = this.loginHandler.bind(this);
 
 
   }
@@ -243,36 +251,128 @@ class UShowHeader extends Component{
 
     if(this.state.activeItem === '好文'){
       return(
-          <div> good </div>
+          <SearchResults />
       );
     }
 
   }
 
+  onLoginSuccess(){
+
+  }
+
+  onLoginFail(res){
+    console.log(res, 'res');
+
+  }
+
+  loginHandler(email, password){
+    let login_uri = CONFIG.API_BASE_URL.concat('/users/login');
+        /*
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain'
+        */
+
+        console.log(email, password, 'bibi');
+
+        fetch(login_uri , {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email:  email,
+            password: password
+          }) })
+          .then((response) => {
+            if (response.status === 200) {
+              //console.log(response.headers.get('x-auth'));
+              response.json().then((data) => {
+                console.log(data, 'data');
+
+                this.props.loginSuccess(
+                  true, response.headers.get('x-auth'),
+                  data.email, data.role, data._id);
+
+
+              });
+              this.onLoginSuccess();
+            } else {
+              this.onLoginFail(response);
+              this.props.loginSuccess(false, '', '');
+              console.log(this.props.loginState);
+            }
+          })
+          .catch((error) => {
+            console.log(this.props.loginState);
+            console.log(error);
+          });
+  }
+
   render() {
     const { activeItem } = this.state
-    return (
-      <div>
-        <Menu pointing>
-          <Menu.Item name='指標' active={activeItem === 'home'} onClick={this.handleItemClick} />
-          <Menu.Item name='通知' active={activeItem === 'messages'} onClick={this.handleItemClick} />
-          <Menu.Item name='好文' active={activeItem === 'friends'} onClick={this.handleItemClick} />
-          <Menu.Menu position='right'>
-            <Menu.Item>
-              <div> avatar </div>
-            </Menu.Item>
-          </Menu.Menu>
-        </Menu>
+    if(this.props.loginState.success){ //this.props.loginState.loginSuccess
+      console.log(this.props.loginState, 'this.props.loginState');
+      return (
+        <div>
+          <Menu pointing>
+            <Menu.Item name='指標' active={activeItem === 'home'} onClick={this.handleItemClick} />
+            <Menu.Item name='通知' active={activeItem === 'messages'} onClick={this.handleItemClick} />
+            <Menu.Item name='好文' active={activeItem === 'friends'} onClick={this.handleItemClick} />
+            <Menu.Menu position='right'>
+              <Menu.Item>
+                <div> {this.props.loginState.firstName} </div>
+              </Menu.Item>
+            </Menu.Menu>
+          </Menu>
 
-        <Segment style={{flex: 1}}>
-         { this.renderSearch() }
-          <div>
-            { this.renderContent() }
-          </div>
-        </Segment>
-      </div>
-    )
+          <Segment style={{flex: 1}}>
+           { //this.renderSearch() //先取消搜尋
+           }
+            <div>
+              { this.renderContent() }
+            </div>
+          </Segment>
+        </div>
+      );
+    }else{
+      return(
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+      }}>
+          <UShowInputForm loginHandler={this.loginHandler}/>
+        </div>
+      );
+    }
+
   }
 }
 
-export default UShowHeader ;
+
+// Anything returned from this function will end up as props
+// on the UShowHeader container
+
+function mapDispatchToProps(dispatch) {
+  // Whenever loginSuccess is called, the result should be passed
+  // to all of our reducers
+  return bindActionCreators({ signOut,
+    loginSuccess }, dispatch);
+}
+
+function mapStateToProps(state) {
+  // Whever is returned will show up as props
+  // inside of LoginForm
+  return {
+    loginState: state.loginState
+  };
+}
+
+// Promote BoxList from a component to a container - it
+// needs to know about this new dispatch method, selectedNumBox & answerNum.
+// Make it available as a prop.
+//export default connect(mapStateToProps, mapDispatchToProps)(UShowHeader);
+export default connect(mapStateToProps, mapDispatchToProps)(UShowHeader);
